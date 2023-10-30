@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Appendox.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "run D:\\AppendoxDev"
+    }
+  }
+}
