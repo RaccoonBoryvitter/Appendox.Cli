@@ -1,44 +1,45 @@
 ﻿using Appendox.Cli.Validators;
+using CliFx;
+using CliFx.Attributes;
+using CliFx.Infrastructure;
 using Spectre.Console;
-using Spectre.Console.Cli;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Appendox.Cli.Commands;
 
-internal sealed class MainCommand : AsyncCommand<MainCommand.Settings>
+[Command]
+public sealed class MainCommand : ICommand
 {
-    internal sealed class Settings : CommandSettings
+    [CommandParameter(
+        0,
+        Description = "The path of the source code to be converted. Can be either an URL or local directory path. Uses current directory by default.",
+        Name = "sourcePath",
+        Validators = new[] { typeof(PathValidator) },
+        IsRequired = false
+    )]
+    public string? SourcePath { get; private set; }
+
+    public async ValueTask ExecuteAsync(IConsole console)
     {
-        [CommandArgument(0, "[sourcePath]")]
-        [Description(
-            "The path of the source code to be converted. Can be either an URL or local directory path. Uses current directory by default."
-        )]
-        public string SourcePath { get; set; } = Directory.GetCurrentDirectory();
-    }
+        SourcePath ??= Directory.GetCurrentDirectory();
+        AnsiConsole.MarkupLineInterpolated($"The specified source path is: [green]{SourcePath}[/]");
 
-    public override Task<int> ExecuteAsync(
-        [NotNull] CommandContext context,
-        [NotNull] Settings settings
-    )
-    {
-        AnsiConsole.MarkupLineInterpolated(
-            $"The specified source path is: [green]{settings.SourcePath}[/]"
-        );
+        await AnsiConsole
+            .Status()
+            .Spinner(Spinner.Known.Dots8Bit)
+            .SpinnerStyle(Style.Parse("yellow bold"))
+            .StartAsync(
+                "Processing repository...",
+                async ctx =>
+                {
+                    await Task.Delay(1000);
+                    AnsiConsole.WriteLine("Ha");
 
-        return Task.FromResult(0);
-    }
+                    await Task.Delay(1000);
+                    AnsiConsole.WriteLine("Ha");
 
-    public override ValidationResult Validate(
-        [NotNull] CommandContext context,
-        [NotNull] Settings settings
-    )
-    {
-        if (!PathValidator.IsUrlOrDirectory(settings.SourcePath))
-        {
-            return ValidationResult.Error("The specified path is not valid.");
-        }
-
-        return base.Validate(context, settings);
+                    await Task.Delay(1000);
+                    AnsiConsole.WriteLine("Ha");
+                }
+            );
     }
 }

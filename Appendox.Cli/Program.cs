@@ -1,13 +1,16 @@
-﻿using Appendox.Cli.Commands;
-using Spectre.Console.Cli;
+﻿using CliFx;
 
-var app = new CommandApp();
-app.Configure(cfg =>
+namespace Appendox.Cli;
+
+public static class Program
 {
-    cfg.AddCommand<MainCommand>("run")
-        .WithDescription(
-            "Executes a main flow of the tool to generate media file from source code."
-        );
-});
-
-return await app.RunAsync(args);
+    public static async Task<int> Main() =>
+        await new CliApplicationBuilder()
+            .AddCommandsFromThisAssembly()
+            .SetTitle("appendox")
+            .SetDescription(
+                "A small console tool which generates a document file from source code."
+            )
+            .Build()
+            .RunAsync();
+}

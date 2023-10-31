@@ -1,14 +1,27 @@
-﻿namespace Appendox.Cli.Validators;
+﻿using CliFx.Extensibility;
+using System.IO;
 
-internal static class PathValidator
+namespace Appendox.Cli.Validators;
+
+internal sealed class PathValidator : BindingValidator<string>
 {
-    public static bool IsUrlOrDirectory(string path)
+    public override BindingValidationError? Validate(string? value)
     {
+        if (value is null)
+        {
+            return Error("The path was not specified.");
+        }
+
         var isUrl =
-            path.StartsWith("https://")
-            || path.StartsWith("http://")
-            || Uri.TryCreate(path, UriKind.Absolute, out _);
-        var isDirectory = Directory.Exists(path);
-        return isUrl || isDirectory;
+            value.StartsWith("https://")
+            || value.StartsWith("http://")
+            || Uri.TryCreate(value, UriKind.Absolute, out _);
+        var isDirectory = Directory.Exists(value);
+        if (!isUrl && !isDirectory)
+        {
+            return Error("The specified path is invalid.");
+        }
+
+        return Ok();
     }
 }

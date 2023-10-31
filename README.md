@@ -18,3 +18,6 @@ This tool is now in very early alpha.
 - 0.1.0-alpha:
   - Project initialization
   - Path validation
+- 0.1.1-alpha:
+  - Migrate from `Spectre.Console.Cli` to `CliFx`
+  - Add `CliWrap` for Git operations
