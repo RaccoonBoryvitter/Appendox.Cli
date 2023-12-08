@@ -1,5 +1,4 @@
 ﻿using CliFx.Extensibility;
-using System.IO;
 
 namespace Appendox.Cli.Validators;
 

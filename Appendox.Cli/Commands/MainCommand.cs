@@ -1,8 +1,12 @@
-﻿using Appendox.Cli.Validators;
+﻿using Appendox.Cli.Utils;
+using Appendox.Cli.Validators;
+using Appendox.Core.Exceptions;
 using CliFx;
 using CliFx.Attributes;
 using CliFx.Infrastructure;
+using LanguageExt;
 using Spectre.Console;
+using System.Diagnostics;
 
 namespace Appendox.Cli.Commands;
 
@@ -21,25 +25,26 @@ public sealed class MainCommand : ICommand
     public async ValueTask ExecuteAsync(IConsole console)
     {
         SourcePath ??= Directory.GetCurrentDirectory();
-        AnsiConsole.MarkupLineInterpolated($"The specified source path is: [green]{SourcePath}[/]");
+        var cancellationToken = console.RegisterCancellationHandler();
 
         await AnsiConsole
             .Status()
             .Spinner(Spinner.Known.Dots8Bit)
-            .SpinnerStyle(Style.Parse("yellow bold"))
+            .SpinnerStyle(Style.Parse("blue bold"))
             .StartAsync(
-                "Processing repository...",
+                "Checking Git version...",
                 async ctx =>
                 {
-                    await Task.Delay(1000);
-                    AnsiConsole.WriteLine("Ha");
+                    var gitVersionResult = await GitAdapter.GetGitVersionAsync(cancellationToken);
+                    _ = gitVersionResult.IfLeft(l => throw new GitCliException(l));
+                    var gitVersion = gitVersionResult.IfRight(r => r);
 
-                    await Task.Delay(1000);
-                    AnsiConsole.WriteLine("Ha");
-
-                    await Task.Delay(1000);
-                    AnsiConsole.WriteLine("Ha");
+                    AnsiConsole.MarkupLineInterpolated(
+                        $"[default on green]SUCCESS[/] Checking Git version: {gitVersion!}"
+                    );
                 }
             );
+
+        AnsiConsole.MarkupLineInterpolated($"The specified source path is: [green]{SourcePath}[/]");
     }
 }
